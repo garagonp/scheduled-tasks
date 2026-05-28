@@ -1,38 +1,80 @@
-# To run and test the code you need to update 4 places:
-# 1. Change MY_EMAIL/MY_PASSWORD to your own details.
-# 2. Go to your email provider and make it allow less secure apps.
-# 3. Update the SMTP ADDRESS to match your email provider.
-# 4. Update birthdays.csv to contain today's month and day.
-# See the solution video in the 100 Days of Python Course for explainations.
-
-
-from datetime import datetime
-import pandas
-import random
 import smtplib
-import os
+import datetime as dt
+import random
+import pandas
 
-# import os and use it to get the Github repository secrets
-MY_EMAIL = os.environ.get("MY_EMAIL")
-MY_PASSWORD = os.environ.get("MY_PASSWORD")
 
-today = datetime.now()
-today_tuple = (today.month, today.day)
+MY_EMAIL = "etaoin2000@gmail.com"
+MY_PASSWORD  = "[Credentials]"
 
-data = pandas.read_csv("birthdays.csv")
-birthdays_dict = {(data_row["month"], data_row["day"])                  : data_row for (index, data_row) in data.iterrows()}
-if today_tuple in birthdays_dict:
-    birthday_person = birthdays_dict[today_tuple]
-    file_path = f"letter_templates/letter_{random.randint(1, 3)}.txt"
-    with open(file_path) as letter_file:
-        contents = letter_file.read()
-        contents = contents.replace("[NAME]", birthday_person["name"])
 
-    with smtplib.SMTP("YOUR EMAIL PROVIDER SMTP SERVER ADDRESS") as connection:
-        connection.starttls()
-        connection.login(MY_EMAIL, MY_PASSWORD)
-        connection.sendmail(
-            from_addr=MY_EMAIL,
-            to_addrs=birthday_person["email"],
-            msg=f"Subject:Happy Birthday!\n\n{contents}"
-        )
+##################### Send email #######################################
+def send_email(pemail, content):
+  with smtplib.SMTP("smtp.gmail.com") as connection:
+    connection.starttls()
+    connection.login(MY_EMAIL, MY_PASSWORD)
+    connection.sendmail(
+      from_addr="eatoin2000@gmail.com",
+      to_addrs=pemail,
+      msg=f"Subject:Happy BD!\n\n{content}"
+    )
+
+
+##################### Extra Hard Starting Project ######################
+
+
+# DONE - 1. Update the birthdays.csv
+
+
+letters = ["letter_1.txt", "letter_2.txt", "letter_3.txt"]
+
+
+# DONE - 2. Check if today matches a birthday in the birthdays.csv
+now= dt.datetime.now()
+#print(now)
+#you can use a tuple:
+# today_tuple = (today.month, today.day)
+curr_month = now.month
+curr_day = now.day
+#print(curr_month,curr_day)
+#print(now.weekday())
+
+
+bd_data = pandas.read_csv("birthdays.csv")
+#print(bd_data)
+
+
+match = bd_data[(bd_data["month"] == curr_month) & (bd_data["day"] == curr_day)]
+if not match.empty:
+  print(match)
+  #print(letters)
+  pname = match.iloc[0]["name"]
+  pemail = match.iloc[0]["email"]
+  print(pname, pemail)
+  letter = random.choice(letters)
+  #print(letter)
+  with open(f"letter_templates/{letter}", encoding="utf-8") as file:
+    content = file.read()
+    content = content.replace("[NAME]", pname)
+    print(content)
+    send_email(pemail, content)
+else:
+  print("No match")
+
+
+# DONE - 3. If step 2 is true, pick a random letter from letter templates and
+# replace the [NAME] with the person's actual name from birthdays.csv
+
+
+
+
+# DONE - 4. Send the letter generated in step 3 to that person's email address.
+
+
+
+
+
+
+
+
+
