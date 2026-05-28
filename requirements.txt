@@ -1,5 +1,4 @@
 pandas
-os
 mtplib
 datetime
 random
